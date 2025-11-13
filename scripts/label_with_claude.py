@@ -209,6 +209,7 @@ def main():
                             "content": example['prose']
                         }
                     ],
+                    # Optional metadata (not used in training, just for reference)
                     "metadata": {
                         "title": example['title'],
                         "author": example['author'],

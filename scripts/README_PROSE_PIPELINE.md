@@ -28,19 +28,23 @@ Format your prose examples as:
 
 ```markdown
 ##### title (author)
-First paragraph of prose.
+First prose example from this source.
 
-Second paragraph of prose.
+Second prose example from the same source.
+
+Third example also from this source.
 
 ##### another title (different author)
-More prose here.
+A prose example from a different source.
+
+Another example from this second source.
 ```
 
 **Requirements:**
-- Each example starts with `##### title (author)`
-- Prose follows on subsequent lines
-- Blank lines separate paragraphs
-- Multiple paragraphs per example are fine
+- Each section starts with `##### title (author)`
+- **Each paragraph (separated by blank lines) becomes its own training example**
+- All paragraphs under one header share the same title/author metadata
+- One header can contain many prose examples (one per paragraph)
 
 ### Step 2: Parse Examples
 
@@ -153,9 +157,11 @@ python train_prose_lora.py
 **Input format:**
 ```markdown
 ##### comforting myths (rabih alameddine)
-the writers who are allowed to talk are those who prop up the dominant culture.
+the writers who are allowed to talk are those who prop up the dominant culture, who reflect it with a gilded mirror.
 
-We invade your countries, destroy your economies...
+We invade your countries, destroy your economies, demolish your infrastructures, murder hundreds of thousands of your citizens, and a decade or so later we write beautifully restrained novels about how killing you made us cry.
+
+opposing the dominant culture is like trying to whittle down a mountain by rubbing it with a silk scarf. Yet a writer must. I may not be able to move mountains like Superman, but I have lovely scarves.
 ```
 
 **Output format:**
@@ -164,12 +170,25 @@ We invade your countries, destroy your economies...
   {
     "title": "comforting myths",
     "author": "rabih alameddine",
-    "prose": "the writers who are allowed to talk...",
-    "num_paragraphs": 2,
-    "char_count": 245
+    "prose": "the writers who are allowed to talk are those who prop up the dominant culture, who reflect it with a gilded mirror.",
+    "char_count": 114
+  },
+  {
+    "title": "comforting myths",
+    "author": "rabih alameddine",
+    "prose": "We invade your countries, destroy your economies, demolish your infrastructures...",
+    "char_count": 178
+  },
+  {
+    "title": "obituary for dead languages",
+    "author": "heather altfeld",
+    "prose": "Here are the continents, once married, now divorced by the currents of the sea...",
+    "char_count": 156
   }
 ]
 ```
+
+Note: Each paragraph becomes its own entry with the same title/author.
 
 ### `label_with_claude.py`
 

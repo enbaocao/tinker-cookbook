@@ -60,7 +60,7 @@ def parse_prose_markdown(markdown_path: str) -> List[Dict[str, str]]:
             title = header
             author = "Unknown"
 
-        # Clean up prose: remove excessive whitespace but preserve paragraph breaks
+        # Split into individual paragraphs (each paragraph is a separate prose example)
         prose_lines = [line.strip() for line in prose_content.split('\n')]
         prose_paragraphs = []
 
@@ -76,17 +76,16 @@ def parse_prose_markdown(markdown_path: str) -> List[Dict[str, str]]:
         if current_para:
             prose_paragraphs.append(' '.join(current_para))
 
-        # Join paragraphs with double newline
-        prose = '\n\n'.join(prose_paragraphs)
-
-        if prose:  # Only add if there's actual prose content
-            examples.append({
-                'title': title,
-                'author': author,
-                'prose': prose,
-                'num_paragraphs': len(prose_paragraphs),
-                'char_count': len(prose)
-            })
+        # IMPORTANT: Each paragraph becomes its own example
+        # (not one multi-paragraph example per header)
+        for prose in prose_paragraphs:
+            if prose.strip():  # Only add if there's actual content
+                examples.append({
+                    'title': title,
+                    'author': author,
+                    'prose': prose,
+                    'char_count': len(prose)
+                })
 
     return examples
 
@@ -108,14 +107,18 @@ def main():
     print(f"Parsing {input_path}...")
     examples = parse_prose_markdown(input_path)
 
-    print(f"\nParsed {len(examples)} prose examples")
+    print(f"\nParsed {len(examples)} individual prose examples")
     print(f"Average length: {sum(e['char_count'] for e in examples) // len(examples)} characters")
 
+    # Count unique sources
+    unique_sources = len(set((e['title'], e['author']) for e in examples))
+    print(f"From {unique_sources} different sources (title + author combinations)")
+
     # Show first few examples
-    print(f"\nFirst 3 examples:")
-    for i, example in enumerate(examples[:3], 1):
+    print(f"\nFirst 5 examples:")
+    for i, example in enumerate(examples[:5], 1):
         print(f"\n{i}. {example['title']} by {example['author']}")
-        print(f"   Paragraphs: {example['num_paragraphs']}, Chars: {example['char_count']}")
+        print(f"   Length: {example['char_count']} chars")
         preview = example['prose'][:100] + "..." if len(example['prose']) > 100 else example['prose']
         print(f"   Preview: {preview}")
 
