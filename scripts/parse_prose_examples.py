@@ -3,6 +3,7 @@
 Parse a markdown file containing prose examples into structured JSON.
 
 Expected markdown format:
+    #### title (author)
     ##### title (author)
     prose paragraph 1
 
@@ -34,9 +35,9 @@ def parse_prose_markdown(markdown_path: str) -> List[Dict[str, str]]:
 
     examples = []
 
-    # Split by h5 headers (##### )
-    # Pattern: ##### title (author)
-    sections = re.split(r'^#{5}\s+', content, flags=re.MULTILINE)
+    # Split by h4 or h5 headers (#### or #####)
+    # Pattern: #### title (author) or ##### title (author)
+    sections = re.split(r'^#{4,5}\s+', content, flags=re.MULTILINE)
 
     # First section before any header is typically empty or intro text
     sections = [s.strip() for s in sections if s.strip()]

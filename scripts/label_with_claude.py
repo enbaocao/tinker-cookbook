@@ -8,7 +8,7 @@ Usage:
     python label_with_claude.py parsed_examples.json output.jsonl
 
 Optional arguments:
-    --model MODEL          Claude model to use (default: claude-haiku-4.5-20250702)
+    --model MODEL          Claude model to use (default: claude-haiku-4-5-20251001)
     --resume              Resume from existing output file
     --batch-size N        Process N examples before saving (default: 10)
 """
@@ -58,7 +58,7 @@ def generate_prompt_for_prose(
     prose: str,
     title: str,
     author: str,
-    model: str = "claude-haiku-4.5-20250702"
+    model: str = "claude-haiku-4-5-20251001"
 ) -> str:
     """
     Use Claude to generate a creative prompt for the given prose.
@@ -125,7 +125,7 @@ def main():
     )
     parser.add_argument('input_json', help='Input JSON file from parse_prose_examples.py')
     parser.add_argument('output_jsonl', help='Output JSONL file for training')
-    parser.add_argument('--model', default='claude-haiku-4.5-20250702',
+    parser.add_argument('--model', default='claude-haiku-4-5-20251001',
                        help='Claude model to use')
     parser.add_argument('--resume', action='store_true',
                        help='Resume from existing output file')
