@@ -55,7 +55,7 @@ def build_config_blueprint() -> chz.Blueprint[train.Config]:
     # Load data from JSONL file
     dataset = FromConversationFileBuilder(
         common_config=common_config,
-        file_path="training_data.jsonl",  # Override with file_path=...
+        file_path="example-data/claude_labeled.jsonl",  # Override with dataset_builder.file_path=...
         test_size=50,      # Hold out 50 examples for evaluation
         shuffle_seed=42,   # Reproducible shuffling
     )
@@ -69,7 +69,7 @@ def build_config_blueprint() -> chz.Blueprint[train.Config]:
             "learning_rate": learning_rate,  # Auto-calculated optimal LR
             "lora_rank": 32,          # Higher = more capacity (try 64 for complex styles)
             "lr_schedule": "linear",  # Linear decay over training
-            "num_epochs": 3,          # 3-5 epochs typical for prose
+            "num_epochs": 5,          # 3-5 epochs typical for prose
             "eval_every": 16,         # Evaluate every N batches
             "save_every": 100,        # Save checkpoints frequently
         }
