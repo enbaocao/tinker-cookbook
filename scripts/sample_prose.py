@@ -28,52 +28,49 @@ async def sample():
         base_model=base_model
     )
     
-    # Get tokenizer and renderer
+    # Get tokenizer (no renderer needed - we're using plain text)
     tokenizer = get_tokenizer(base_model)
-    renderer = renderers.get_renderer(name="llama3", tokenizer=tokenizer)
     
     # Try multiple prompts that match training data styles
     prompts = [
-        "Write a brief, lyrical passage using sparse language to capture a fleeting memory.",
-        "Compose a short philosophical reflection on the weight of loss, using concrete imagery.",
-        "Craft a minimalist passage about longing, with simple but resonant language.",
-        "Write a contemplative moment about childhood, told through fragmented sensory details.",
-        "Describe an intimate exchange between two people using understated emotional weight."
+        "Write a brief, lyrical passage using sparse language to capture a fleeting memory.\n\n",
+        "Compose a short philosophical reflection on the weight of loss, using concrete imagery.\n\n",
+        "Craft a minimalist passage about longing, with simple but resonant language.\n\n",
+        "Write a contemplative moment about childhood, told through fragmented sensory details.\n\n",
+        "Describe an intimate exchange between two people using understated emotional weight.\n\n"
     ]
     
     for i, prompt in enumerate(prompts, 1):
         print(f"\n{'='*60}")
         print(f"PROMPT {i}/{len(prompts)}:")
         print(f"{'='*60}")
-        print(prompt)
+        print(prompt.strip())
         print(f"{'='*60}\n")
         
-        # Render the messages
-        messages = [{"role": "user", "content": prompt}]
-        prompt_text = renderer.build_generation_prompt(messages)
+        # Tokenize the prompt (with BOS token, matching training format)
+        prompt_tokens = tokenizer.encode(prompt, add_special_tokens=True)
+        prompt_input = tinker.ModelInput.from_ints(prompt_tokens)
         
         # Sample from the model with lower temperature for better quality
         sampling_params = tinker.SamplingParams(
-            temperature=0.6,  # Lower than before for more focused output
-            max_tokens=150,
-            stop=renderer.get_stop_sequences()
+            temperature=0.7,
+            max_tokens=200,
+            stop=[tokenizer.eos_token_id] if tokenizer.eos_token_id else []
         )
         
         response = await sampling_client.sample_async(
-            prompt=prompt_text,
+            prompt=prompt_input,
             sampling_params=sampling_params,
             num_samples=1
         )
         
-        # Extract the tokens from the first sample
+        # Extract and decode the tokens
         sampled_tokens = response.sequences[0].tokens
-        
-        # Parse the response
-        parsed = renderer.parse_response(sampled_tokens)
+        prose = tokenizer.decode(sampled_tokens, skip_special_tokens=True)
         
         print("GENERATED PROSE:")
         print("-"*60)
-        print(parsed[0]["content"] if isinstance(parsed, list) else parsed)
+        print(prose)
         print("-"*60)
 
 

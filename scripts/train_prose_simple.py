@@ -131,9 +131,11 @@ def build_config_blueprint() -> chz.Blueprint[train.Config]:
             "learning_rate": learning_rate,
             "lora_rank": 32,
             "lr_schedule": "linear",
-            "num_epochs": 5,
+            "num_epochs": 10,  # Increased from 5 to 10
             "eval_every": 16,
             "save_every": 100,
+            # To continue from existing checkpoint, add:
+            # "load_checkpoint_path": "tinker://1996f52b-06bd-5d23-8d20-7d7eb9fbfe73:train:0/weights/final",
         }
     )
 
