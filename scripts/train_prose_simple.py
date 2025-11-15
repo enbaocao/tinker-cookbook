@@ -73,22 +73,22 @@ class SimpleProseDatasetBuilder(SupervisedDatasetBuilder):
             prose = assistant_msg["content"]
             
             # Format as simple text: prompt\n\nprose
-            # Add BOS token at start
             text = f"{prompt}\n\n{prose}"
             
-            # Tokenize
+            # Tokenize full text with BOS
             tokens = tokenizer.encode(text, add_special_tokens=True)
             tokens_tensor = torch.tensor(tokens)
             
-            # Create weights: 0 for prompt, 1 for prose
-            # We need to find where the prose starts
-            prompt_text = f"{prompt}\n\n"
-            prompt_tokens = tokenizer.encode(prompt_text, add_special_tokens=True)
-            prompt_len = len(prompt_tokens)
+            # Tokenize just the prose to find where it starts
+            # (Don't add BOS to this one)
+            prose_tokens = tokenizer.encode(prose, add_special_tokens=False)
+            prose_len = len(prose_tokens)
             
-            # Weights: 0 for BOS + prompt, 1 for prose
+            # Create weights: 0 for prompt + separator, 1 for prose
+            # The prose tokens should be at the END of the sequence
             weights = torch.zeros(len(tokens))
-            weights[prompt_len:] = 1.0
+            if prose_len > 0:
+                weights[-prose_len:] = 1.0
             
             # Use the standard helper to create datum with proper input/target split
             return datum_from_tokens_weights(tokens_tensor, weights, self.max_length)
@@ -118,7 +118,7 @@ def build_config_blueprint() -> chz.Blueprint[train.Config]:
         file_path="example-data/claude_labeled.jsonl",
         model_name_for_tokenizer=model_name,
         batch_size=64,
-        test_size=50,
+        test_size=0,  # Disable test set to avoid NaN issues
         shuffle_seed=42,
         max_length=2048,
     )
@@ -134,6 +134,9 @@ def build_config_blueprint() -> chz.Blueprint[train.Config]:
             "num_epochs": 6,  # 6 epochs with full 639 examples
             "eval_every": 16,
             "save_every": 100,
+            # Weights & Biases logging
+            "wandb_project": "prose-lora",
+            "wandb_name": None,  # Auto-generated based on timestamp
         }
     )
 
