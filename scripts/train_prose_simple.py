@@ -99,11 +99,13 @@ class SimpleProseDatasetBuilder(SupervisedDatasetBuilder):
         train_dataset = SupervisedDatasetFromHFDataset(
             train_ds, batch_size=self.batch_size, map_fn=map_fn
         )
-        
+
         test_dataset = None
         if test_ds is not None:
+            # Use len(test_ds) as batch_size to ensure all test examples are in one batch
+            # (avoids dropping test data when test_size < batch_size)
             test_dataset = SupervisedDatasetFromHFDataset(
-                test_ds, batch_size=self.batch_size, map_fn=map_fn
+                test_ds, batch_size=len(test_ds), map_fn=map_fn
             )
         
         return train_dataset, test_dataset
@@ -118,7 +120,7 @@ def build_config_blueprint() -> chz.Blueprint[train.Config]:
         file_path="example-data/claude_labeled.jsonl",
         model_name_for_tokenizer=model_name,
         batch_size=64,
-        test_size=0,  # Disable test set to avoid NaN issues
+        test_size=50,  # Use 50 examples for test set
         shuffle_seed=42,
         max_length=2048,
     )
