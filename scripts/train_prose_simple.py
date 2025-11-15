@@ -133,7 +133,7 @@ def build_config_blueprint() -> chz.Blueprint[train.Config]:
             "learning_rate": learning_rate,
             "lora_rank": 32,
             "lr_schedule": "linear",
-            "num_epochs": 6,  # 6 epochs with full 639 examples
+            "num_epochs": 3,  # 3 epochs to avoid overfitting
             "eval_every": 16,
             "save_every": 100,
             # Weights & Biases logging
